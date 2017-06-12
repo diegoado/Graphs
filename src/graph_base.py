@@ -5,6 +5,10 @@ class Graph(object):
         """
         self.__graph_dict = graph_dict if graph_dict else {}
 
+    @property
+    def graph_dict(self):
+        return self.__graph_dict
+
     def vertices(self):
         """ Returns the vertices of a src """
         return self.__graph_dict.keys()
@@ -199,33 +203,6 @@ class Graph(object):
         diameter = len(smallest_paths[-1])
         return diameter
 
-    def is_complete(self):
-        vertices = self.vertices()
-        return len(self.edges()) == len(vertices) * (len(vertices) - 1) / 2
-
-    def is_subgraph(self, graph):
-        return Graph.__is_subset(graph.vertices(), self.vertices()) and \
-               Graph.__is_subset(graph.edges(), self.edges())
-
-    def edge_cut(self, vertices):
-        cut = []
-        image_set = set(self.vertices()) - set(vertices)
-
-        for u in vertices:
-            for v in image_set:
-                if u in self.__graph_dict[v] or v in self.__graph_dict[u]:
-                    cut.append({u, v})
-
-        return cut
-
-    @staticmethod
-    def __is_subset(subset, mainset):
-        for element in subset:
-            if element not in mainset:
-                return False
-
-        return True
-
     @staticmethod
     def is_degree_sequence(degree_sequence):
         """ Method returns True, if the sequence "sequence" is a 
@@ -246,7 +223,7 @@ class Graph(object):
         if Graph.is_degree_sequence(degree_sequence):
             for k in range(1, len(degree_sequence) + 1):
                 left = sum(degree_sequence[:k])
-                right = k * (k-1) + sum([min(x,k) for x in degree_sequence[k:]])
+                right = k * (k - 1) + sum([min(x,k) for x in degree_sequence[k:]])
                 if left > right:
                     return False
         else:
@@ -257,7 +234,7 @@ class Graph(object):
 
     def __str__(self):
         str_graph = "vertices: "
-        for k in self.__graph_dict:
+        for k in self.vertices():
             str_graph += str(k) + " "
 
         str_graph += "\nedges: "
@@ -265,49 +242,3 @@ class Graph(object):
             str_graph += str(edge) + " "
 
         return str_graph
-
-if __name__ == "__main__":
-    graph_dict = {"a": ["d"],
-                  "b": ["c"],
-                  "c": ["b", "c", "d", "e"],
-                  "d": ["a", "c"],
-                  "e": ["c"],
-                  "f": []}
-
-    graph_obj = Graph(graph_dict)
-    print(graph_obj)
-
-    for node in graph_obj.vertices():
-        print(graph_obj.vertex_degree(node))
-
-    print("List of isolated vertices:")
-    print(graph_obj.find_isolated_vertices())
-    print("""A path from "a" to "e":""")
-    print(graph_obj.find_path("a", "e"))
-    print("""All patches from "a" to "e":""")
-    print(graph_obj.find_all_paths("a", "e"))
-    print("The maximum degree of the src is:")
-    print(graph_obj.max_delta())
-    print("The minimum degree of the src is:")
-    print(graph_obj.min_delta())
-    print("Edges:")
-    print(graph_obj.edges())
-    print("Degree Sequence: ")
-    d_sequence = graph_obj.degree_sequence()
-    print(d_sequence)
-
-    full_filling = [[2, 2, 2, 2, 1, 1], [3, 3, 3, 3, 3, 3], [3, 3, 2, 1, 1]]
-    non_full_filling = [[4, 3, 2, 2, 2, 1, 1], [6, 6, 5, 4, 4, 2, 1], [3, 3, 3, 1]]
-
-    for sequence in full_filling + non_full_filling:
-        print(sequence, Graph.erdoes_gallai(sequence))
-
-    print("Add vertex 'z':")
-    graph_obj.add_vertex("z")
-    print(graph_obj)
-    print("Add edge ('x','y'): ")
-    graph_obj.add_edge({'x', 'y'})
-    print(graph_obj)
-    print("Add edge ('a','d'): ")
-    graph_obj.add_edge({'a', 'd'})
-    print(graph_obj)
